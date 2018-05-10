@@ -10,6 +10,7 @@
 #import "LOTCharacter.h"
 #import "LOTFont.h"
 #import "LOTHelpers.h"
+#import <CoreText/CoreText.h>
 
 @implementation LOTFontResolver {
   /// maps conjoined font name to font object
@@ -38,41 +39,81 @@
   return self;
 }
 
-- (void)seedGlyphPathsWithJSON:(NSArray*)charactersJSON fontsJSON:(NSArray*)fontsJSON {
-
+- (void)seedFontLookUp:(NSArray*)fontsJSON {
   for (NSDictionary *fontJSON in fontsJSON) {
     LOTFont *font = [[LOTFont alloc] initWithJSON:fontJSON];
     if (font) {
       _fontMap[font.name] = font;
     }
+    NSLog(@"setup fontmap %@", _fontMap);
   }
-
-  for (NSDictionary *characterJSON in charactersJSON) {
-    LOTCharacter *character = [[LOTCharacter alloc] initWithJSON:characterJSON];
-    if (character) {
-      [self setGlyph:character];
-    }
-  }
-
-  NSLog(@"imported glyphs %@", _characterMap);
 }
 
-- (LOTCharacter *)getGlyphForCharacter:(unichar)characterString
+- (void)seedResolverWithFonts:(NSArray*)fontsJSON andCharacterJSON:(nullable NSArray*)charactersJSON {
+  [self seedFontLookUp:fontsJSON];
+  if (charactersJSON) {
+    for (NSDictionary *characterJSON in charactersJSON) {
+      LOTCharacter *character = [[LOTCharacter alloc] initWithJSON:characterJSON];
+      if (character) {
+        [self setGlyph:character];
+      }
+    }
+    NSLog(@"imported glyphs %@", _characterMap);
+  }
+}
+
+- (LOTCharacter *)getGlyphForCharacter:(unichar)character
                                 ofSize:(NSNumber*)size
                      withConjoinedName:(NSString*)familyStyleString {
 
   LOTFont *font = _fontMap[familyStyleString];
 
-  NSString *keypath = [LOTFontResolver keypathForCharacter:characterString
+  NSString *keypath = [LOTFontResolver keypathForCharacter:character
                                                       font:font
                                                       size:size];
 
-  LOTCharacter *glyph = [_characterMap valueForKeyPath:keypath];
-  if (!glyph) {
-    NSLog(@"%C not present for keypath %@ – be sure to export the character as a glyph or provide a custom font file", characterString, keypath);
+  LOTCharacter *characterModel = [_characterMap valueForKeyPath:keypath];
+
+  if (!characterModel) {
+    UIFont *bundledFont = [UIFont fontWithName:familyStyleString size:size.floatValue];
+    if (bundledFont) {
+
+      NSString *characterString = [NSString stringWithFormat:@"%C", character];
+      CFStringRef charString = (__bridge CFStringRef) characterString;
+      CTFontRef fontRef = (__bridge CTFontRef)bundledFont;
+
+      CFIndex count = CFStringGetLength(charString);
+      UniChar *ioChars = (UniChar *)malloc(sizeof(UniChar) * count);
+      CGGlyph *ioGlyphs = (CGGlyph *)malloc(sizeof(CGGlyph) * count);
+      CFStringGetCharacters(charString, CFRangeMake(0, count), ioChars);
+
+//      CGGlyph glyph = CTFontGetGlyphWithName(fontRef, charString);
+      BOOL success = CTFontGetGlyphsForCharacters(fontRef, ioChars, ioGlyphs, count);
+      NSUInteger c = CTFontGetGlyphCount(fontRef);
+
+      if (success) {
+        CGPathRef path = CTFontCreatePathForGlyph(fontRef, ioGlyphs[0], nil);
+        LOTBezierPath *bezierPath = [LOTBezierPath pathWithCGPath:path];
+        CGPathRelease(path);
+
+        characterModel = [[LOTCharacter alloc] initWithCharacterString:characterString
+                                                            familyName:font.familyName
+                                                                  size:size
+                                                                 style:font.style
+                                                            bezierPath:bezierPath];
+        //TODO: Memoize
+      }
+
+      free(ioChars);
+      free(ioGlyphs);
+    }
   }
 
-  return glyph;
+  if (!characterModel) {
+    NSLog(@"%C not present for keypath %@ – be sure to export the character as a glyph or provide a custom font file", character, keypath);
+  }
+
+  return characterModel;
 }
 
 - (void)setGlyph:(LOTCharacter*)glyph {

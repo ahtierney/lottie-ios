@@ -9,9 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "LOTKeyframe.h"
 
+@class LOTBezierPath;
+
 @interface LOTShapePath : NSObject
 
 - (instancetype)initWithJSON:(NSDictionary *)jsonDictionary;
+- (instancetype)initWithKeyname:(NSString*)keyname path:(LOTBezierPath*)path;
 
 @property (nonatomic, readonly) NSString *keyname;
 @property (nonatomic, readonly) BOOL closed;

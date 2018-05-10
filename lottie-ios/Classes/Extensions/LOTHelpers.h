@@ -13,8 +13,8 @@
 #import "CGGeometry+LOTAdditions.h"
 #import "LOTBezierPath.h"
 
-#define ENABLE_DEBUG_LOGGING NO
-#define ENABLE_DEBUG_SHAPES NO
+#define ENABLE_DEBUG_LOGGING YES
+#define ENABLE_DEBUG_SHAPES YES
 
 #endif /* LOTHelpers_h */
 

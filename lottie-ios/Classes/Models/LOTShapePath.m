@@ -7,6 +7,7 @@
 //
 
 #import "LOTShapePath.h"
+#import "LOTBezierPath.h"
 
 @implementation LOTShapePath
 
@@ -14,6 +15,18 @@
   self = [super init];
   if (self) {
     [self _mapFromJSON:jsonDictionary];
+  }
+  return self;
+}
+
+- (instancetype)initWithKeyname:(NSString*)keyname path:(LOTBezierPath*)path {
+  self = [super init];
+  if (self) {
+    _keyname = keyname;
+    _closed = true;
+    _index = @0;
+    LOTKeyframe *frame = [[LOTKeyframe alloc] initWithPathValue:path];
+    _shapePath = [[LOTKeyframeGroup alloc] initWithKeyframes:@[frame]];
   }
   return self;
 }

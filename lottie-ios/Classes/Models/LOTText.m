@@ -115,7 +115,7 @@
     if ([frame.textProperties isEqual:_properties]) {
       opacityFrame = [[LOTKeyframe alloc] initWithValue:@1 forTime:frame.keyframeTime];
     } else {
-      opacityFrame = [[LOTKeyframe alloc] initWithValue:@0 forTime:frame.keyframeTime];
+      opacityFrame = [[LOTKeyframe alloc] initWithValue:@1 forTime:frame.keyframeTime];
     }
     [opacityFrames addObject:opacityFrame];
   }

@@ -65,7 +65,7 @@
 }
 
 // TODO: check all nil guaruntees, ensure these two inits are good to go
-- (instancetype)initWithColorValue:(UIColor*)colorValue {
+- (instancetype)initWithEmptyState {
   self = [super init];
   if (self) {
     _inTangent = CGPointZero;
@@ -74,24 +74,34 @@
     _spatialOutTangent = CGPointZero;
     _keyframeTime = @0;
     _isHold = YES;
+  }
+  return self;
+}
+
+- (instancetype)initWithColorValue:(UIColor*)colorValue {
+  self = [self initWithEmptyState];
+  if (self) {
     _colorValue = colorValue;
   }
   return self;
 }
 
 - (instancetype)initWithSizeValue:(CGSize)sizeValue {
-  self = [super init];
+  self = [self initWithEmptyState];
   if (self) {
-    _inTangent = CGPointZero;
-    _outTangent = CGPointZero;
-    _spatialInTangent = CGPointZero;
-    _spatialOutTangent = CGPointZero;
-    _keyframeTime = @0;
-    _isHold = YES;
     _sizeValue = sizeValue;
   }
   return self;
 }
+
+- (instancetype)initWithPathValue:(LOTBezierPath*)path {
+  self = [self initWithEmptyState];
+  if (self) {
+    _path = path;
+  }
+  return self;
+}
+
 //
 
 - (instancetype)initWithLOTKeyframe:(LOTKeyframe *)keyframe {
@@ -120,6 +130,11 @@
   copy->_sizeValue = self.sizeValue;
   copy->_colorValue = [self.colorValue copy];
   copy->_arrayValue = [[NSArray alloc] initWithArray:self.arrayValue copyItems:YES];
+
+  // FIXME: implement this or clarify contract
+//  copy->_pathData = [_pathData copy];
+//  copy->_path = [_path copy];
+//  copy->_textProperties = [_textProperties copy];
   return copy;
 }
 

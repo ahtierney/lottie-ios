@@ -10,9 +10,17 @@
 
 @class LOTShapeGroup;
 
+@class LOTBezierPath;
+
 @interface LOTCharacter : NSObject
 
 - (nullable instancetype)initWithJSON:(nonnull NSDictionary *)jsonDictionary;
+
+- (nullable instancetype)initWithCharacterString:(NSString *)characterString
+                                      familyName:(NSString *)familyName
+                                            size:(NSNumber *)size
+                                           style:(NSString *)style
+                                      bezierPath:(LOTBezierPath *)path;
 
 @property (nonatomic, readonly) NSString * characterString;
 @property (nonatomic, readonly) NSNumber * width;

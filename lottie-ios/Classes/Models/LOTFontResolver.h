@@ -14,7 +14,7 @@
 
 + (instancetype)shared;
 
-- (void)seedGlyphPathsWithJSON:(NSArray*)charactersJSON fontsJSON:(NSArray*)fontsJSON;
+- (void)seedResolverWithFonts:(NSArray*)fontsJSON andCharacterJSON:(nullable NSArray*)charactersJSON;
 
 - (LOTCharacter *)getGlyphForCharacter:(unichar)characterString
                                 ofSize:(NSNumber*)size

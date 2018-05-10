@@ -8,6 +8,8 @@
 
 #import "LOTCharacter.h"
 #import "LOTShapeGroup.h"
+#import "LOTShapePath.h"
+#import "LOTBezierPath.h"
 
 @implementation LOTCharacter
 
@@ -15,6 +17,25 @@
   self = [super init];
   if (self) {
     [self _mapFromJSON:jsonDictionary];
+  }
+  return self;
+}
+
+- (instancetype)initWithCharacterString:(NSString *)characterString
+                             familyName:(NSString *)familyName
+                                   size:(NSNumber *)size
+                                  style:(NSString *)style
+                             bezierPath:(LOTBezierPath *)path {
+
+  self = [super init];
+  if (self) {
+    _characterString = characterString;
+    _width = [[NSNumber alloc] initWithFloat:path.bounds.size.width];
+    _fontSize = size;
+    _fontStyle = style;
+    _fontFamilyName = familyName;
+    LOTShapePath *pathShape = [[LOTShapePath alloc] initWithKeyname:characterString path:path];
+    _shapes = [[LOTShapeGroup alloc] initWithKeyname:characterString shapes:@[pathShape]];
   }
   return self;
 }

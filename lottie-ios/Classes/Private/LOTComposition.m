@@ -122,8 +122,8 @@
   NSArray *characters = jsonDictionary[@"chars"];
   NSDictionary *fonts = jsonDictionary[@"fonts"];
   NSArray *fontList = fonts[@"list"];
-  if (characters && fontList) {
-    [fontResolver seedGlyphPathsWithJSON:characters fontsJSON:fontList];
+  if (fontList) {
+    [fontResolver seedResolverWithFonts:fontList andCharacterJSON:characters];
   }
 
   NSArray *assetArray = jsonDictionary[@"assets"];
